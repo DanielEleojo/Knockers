@@ -2,7 +2,9 @@ import { startRectangleDraw, cancelDraw, clearScoutShapes, renderScoutAreas } fr
 import { scoreBbox } from '../score/compute.js';
 import { getMap } from '../map/map.js';
 import { getCurrentPosition } from './geolocate.js';
+import { startLocating, recenter, onLocateState } from '../map/locate.js';
 import { logKnockAt, scoreLoading, scoreError, scoreResult, toast } from './houseSheet.js';
+import { iconHere, iconPinPlus, iconScout, iconCrosshair } from './icons.js';
 
 let _scouting = false;
 let _adding = false;
@@ -11,12 +13,26 @@ export function initControls() {
   const hereFab = document.getElementById('here-fab');
   const addFab = document.getElementById('add-fab');
   const scoutFab = document.getElementById('scout-fab');
+  const recenterBtn = document.getElementById('recenter-btn');
+
+  hereFab.innerHTML = `${iconHere()}<span>I’m here</span>`;
+  addFab.innerHTML = `${iconPinPlus()}<span>Tap-add</span>`;
+  scoutFab.innerHTML = `${iconScout()}<span>Scout</span>`;
+  recenterBtn.innerHTML = iconCrosshair();
+
+  // Reflect locate/follow state on the recenter button.
+  onLocateState(({ active, following }) => {
+    recenterBtn.classList.toggle('active', active);
+    recenterBtn.classList.toggle('following', following);
+  });
+  recenterBtn.addEventListener('click', () => recenter({ onError: (err) => toast(err.message) }));
 
   // "I'm here" — log a house at the phone's current GPS fix.
   hereFab.addEventListener('click', async () => {
     setAdding(false);
     hereFab.disabled = true;
-    hereFab.textContent = 'Locating…';
+    hereFab.classList.add('busy');
+    startLocating({ onError: () => {} }); // show the live dot too
     try {
       const { lat, lng } = await getCurrentPosition();
       logKnockAt({ lat, lng });
@@ -24,7 +40,7 @@ export function initControls() {
       toast(err.message || 'Could not get your location.');
     } finally {
       hereFab.disabled = false;
-      hereFab.textContent = '＋ I’m here';
+      hereFab.classList.remove('busy');
     }
   });
 

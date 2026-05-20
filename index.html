@@ -5,32 +5,38 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0b1220" />
+    <meta name="theme-color" content="#ffffff" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Knockers" />
     <title>Knockers — door tracker</title>
   </head>
   <body>
     <div id="map"></div>
 
-    <!-- Floating action buttons (thumb zone) -->
-    <div id="fabs">
-      <button id="scout-fab" class="fab fab-sm" type="button">Scout</button>
-      <button id="here-fab" class="fab fab-primary" type="button">＋ I’m here</button>
-      <button id="add-fab" class="fab fab-sm" type="button">Tap-add</button>
-    </div>
+    <!-- Brand pill (top-left, over a thin scrim) -->
+    <div id="brand"><span class="brand-dot"></span>Knockers</div>
+
+    <!-- Recenter / follow my location (top-right, below zoom) -->
+    <button id="recenter-btn" class="map-ctrl" type="button" aria-label="Recenter on my location"></button>
 
     <!-- A brief status message that floats above the sheet (errors / hints) -->
     <div id="toast" hidden></div>
 
-    <!-- Bottom sheet -->
-    <section id="sheet" class="collapsed">
-      <button id="sheet-handle" type="button" aria-label="Expand or collapse the list">
-        <span class="grip"></span>
-        <span id="tally" class="tally">No houses logged yet</span>
-      </button>
+    <!-- Bottom sheet. Its header holds the actions, so they're always reachable. -->
+    <section id="sheet">
+      <div id="sheet-peek">
+        <button id="sheet-handle" type="button" aria-label="Drag to resize the list">
+          <span class="grip"></span>
+        </button>
+        <div id="actions">
+          <button id="here-fab" class="act act-primary" type="button">I’m here</button>
+          <button id="add-fab" class="act" type="button">Tap-add</button>
+          <button id="scout-fab" class="act" type="button">Scout</button>
+        </div>
+        <div id="tally" class="tally">No houses logged yet</div>
+      </div>
 
       <div id="sheet-body">
         <!-- List view -->

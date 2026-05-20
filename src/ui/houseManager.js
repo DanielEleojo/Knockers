@@ -21,12 +21,17 @@ export function initHouseLayer() {
   for (const k of listKnocks()) addMarker(k);
 }
 
-export function addMarker(knock) {
+export function addMarker(knock, { drop = false } = {}) {
   const marker = L.marker([knock.lat, knock.lng], { icon: statusIcon(knock.status) }).addTo(
     getPinLayer()
   );
   marker.on('click', () => _onSelect?.(knock.id));
   _markers.set(knock.id, marker);
+  if (drop) {
+    // Play a one-shot "drop" only for freshly logged houses (not on initial load).
+    // Animate the inner dot, not the marker root — Leaflet owns the root's transform.
+    requestAnimationFrame(() => marker.getElement()?.querySelector('.knock-dot')?.classList.add('knock-drop'));
+  }
   return marker;
 }
 

@@ -6,7 +6,9 @@ import { listKnocks, addKnock, updateKnock, removeKnock, exportCsv } from '../st
 import { STATUSES, STATUS_ORDER, statusColor } from '../config/statuses.js';
 import { reverseGeocode } from '../api/client.js';
 import * as houses from './houseManager.js';
+import { snapTo } from './sheetGestures.js';
 import { scoreCardHtml, scoreLoadingHtml, scoreErrorHtml, escape } from './scorePanel.js';
+import { iconDownload, iconBack, iconTrash, iconCheck } from './icons.js';
 
 let _filter = 'all';
 let _toastTimer = null;
@@ -14,12 +16,9 @@ let _toastTimer = null;
 const $ = (id) => document.getElementById(id);
 
 export function initSheet() {
-  $('sheet-handle').addEventListener('click', () => {
-    // From editor/score, the handle returns to the list first.
-    if (currentView() !== 'list-view') showView('list-view');
-    else toggleExpanded();
-  });
-
+  // The handle's drag/tap is owned by sheetGestures; the sheet itself just
+  // reacts to view changes by snapping open.
+  $('export-btn').innerHTML = `${iconDownload()} Export CSV`;
   $('export-btn').addEventListener('click', onExport);
 
   // Tapping a marker opens its editor.
@@ -29,7 +28,7 @@ export function initSheet() {
   refresh();
 }
 
-/* ---------- view switching + expand ---------- */
+/* ---------- view switching ---------- */
 
 const VIEWS = ['list-view', 'editor-view', 'score-view'];
 
@@ -39,16 +38,7 @@ function currentView() {
 
 function showView(id) {
   for (const v of VIEWS) $(v).hidden = v !== id;
-  if (id !== 'list-view') setExpanded(true);
-}
-
-function setExpanded(on) {
-  $('sheet').classList.toggle('expanded', on);
-  $('sheet').classList.toggle('collapsed', !on);
-}
-
-function toggleExpanded() {
-  setExpanded(!$('sheet').classList.contains('expanded'));
+  if (id !== 'list-view') snapTo('full');
 }
 
 /* ---------- list view ---------- */
@@ -135,7 +125,7 @@ export function openEditor(id) {
 
   $('editor-view').innerHTML = `
     <div class="editor">
-      <button class="back-btn ghost" data-act="back">‹ List</button>
+      <button class="back-btn ghost" data-act="back">${iconBack()} List</button>
       <div class="editor-addr">${escape(primaryLabel(knock))}</div>
       <div class="status-grid">
         ${STATUS_ORDER.map(
@@ -145,8 +135,8 @@ export function openEditor(id) {
       </div>
       <textarea class="editor-note" placeholder="Notes — gate code, best time, dog…">${escape(knock.note || '')}</textarea>
       <div class="editor-actions">
-        <button class="wide-btn danger" data-act="delete">Delete</button>
-        <button class="wide-btn primary" data-act="save">Save</button>
+        <button class="wide-btn danger" data-act="delete">${iconTrash()} Delete</button>
+        <button class="wide-btn primary" data-act="save">${iconCheck()} Save</button>
       </div>
     </div>`;
 
@@ -187,6 +177,7 @@ function saveNote(id, view) {
 function backToList() {
   showView('list-view');
   refresh();
+  snapTo('half');
 }
 
 /* ---------- score view ---------- */
@@ -218,7 +209,7 @@ function setScoreView(html) {
  */
 export function logKnockAt({ lat, lng }) {
   const knock = addKnock({ lat, lng });
-  houses.addMarker(knock);
+  houses.addMarker(knock, { drop: true });
   houses.focus(knock.id);
   refresh();
   openEditor(knock.id);
@@ -259,11 +250,11 @@ function onExport() {
 export function toast(msg) {
   const el = $('toast');
   el.textContent = msg;
-  el.hidden = false;
+  el.removeAttribute('hidden');
+  // rAF so the transition runs from the hidden state on first show.
+  requestAnimationFrame(() => el.classList.add('show'));
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => {
-    el.hidden = true;
-  }, 3200);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
 }
 
 function findKnock(id) {
