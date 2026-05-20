@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0b1220" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Knockers" />
+    <title>Knockers — door tracker</title>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <!-- Floating action buttons (thumb zone) -->
+    <div id="fabs">
+      <button id="scout-fab" class="fab fab-sm" type="button">Scout</button>
+      <button id="here-fab" class="fab fab-primary" type="button">＋ I’m here</button>
+      <button id="add-fab" class="fab fab-sm" type="button">Tap-add</button>
+    </div>
+
+    <!-- A brief status message that floats above the sheet (errors / hints) -->
+    <div id="toast" hidden></div>
+
+    <!-- Bottom sheet -->
+    <section id="sheet" class="collapsed">
+      <button id="sheet-handle" type="button" aria-label="Expand or collapse the list">
+        <span class="grip"></span>
+        <span id="tally" class="tally">No houses logged yet</span>
+      </button>
+
+      <div id="sheet-body">
+        <!-- List view -->
+        <div id="list-view">
+          <div id="filter-chips" class="chips"></div>
+          <ul id="knock-list"></ul>
+          <button id="export-btn" class="wide-btn ghost" type="button">Export CSV</button>
+        </div>
+
+        <!-- Editor view (one house) -->
+        <div id="editor-view" hidden></div>
+
+        <!-- Score view (area scout) -->
+        <div id="score-view" hidden></div>
+      </div>
+    </section>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

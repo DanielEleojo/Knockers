@@ -1,0 +1,16 @@
+# Netlify deploy config. Static Vite build + the Express proxy wrapped as one
+# serverless function. Set CENSUSMAPPER_API_KEY in Site settings → Environment.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Route the SPA's /api/* calls to the wrapped Express function.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
